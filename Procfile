@@ -1,0 +1,1 @@
+web: gunicorn mypallet.wsgi --log-file -
