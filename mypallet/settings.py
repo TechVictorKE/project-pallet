@@ -14,6 +14,7 @@ import os
 import django_on_heroku
 import dj_database_url
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,8 +45,14 @@ INSTALLED_APPS = [
     'crispy_forms',
     'rest_framework',
     'pyuploadcare.dj',
-    'bootstrap4',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+UPLOADCARE = {
+    'pub_key': '2b709bca64245dd9e55e',
+    'secret': '0a60851de5f3db2dc728',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -132,6 +139,17 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [ os.path.join(BASE_DIR, "static"), ] 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles") 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+LOGIN_REDIRECT_URL = 'index'
+
+LOGOUT_REDIRECT_URL = 'index'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
+}
 
 # Configure Django App for Heroku.
 django_on_heroku.settings(locals())
