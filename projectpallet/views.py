@@ -1,158 +1,175 @@
+from django.shortcuts import render,redirect
+from .forms import PostForm,RateForm,ReviewForm,UpdateForm
+from .models import Projects,Rates,Comments,Profile
+from django.http import HttpResponse,Http404,HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import SignupForm, PostForm, UpdateUserForm, UpdateUserProfileForm, RatingsForm
-from rest_framework import viewsets
-from .models import Profile, Post, Rating
-from .serializers import ProfileSerializer, UserSerializer, PostSerializer
-from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
-import random
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .serializers import ProjectSerializer,ProfileSerializer
 
 # Create your views here.
 def index(request):
-    if request.method == "POST":
-        form = PostForm(request.POST)
-        if form.is_valid():
-            post = form.save(commit=False)
-            post.user = request.user
-            post.save()
-    else:
-        form = PostForm()
 
     try:
-        posts = Post.objects.all()
-        posts = posts[::-1]
-        a_post = random.randint(0, len(posts)-1)
-        random_post = posts[a_post]
-        print(random_post.photo)
-    except Post.DoesNotExist:
-        posts = None
-    return render(request, 'index.html', {'posts': posts, 'form': form, 'random_post': random_post})
+        projects=Projects.objects.all()
+    except Exception as e:
+        raise  Http404()
+    return render(request,'index.html',{"projects":projects})
 
-
-class ProfileViewSet(viewsets.ModelViewSet):
-    queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all()
-    serializer_class = PostSerializer
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignupForm(request.POST)
+@login_required(login_url='/accounts/login/')
+def post(request):
+    current_user=request.user
+    if request.method=='POST':
+        form =PostForm(request.POST,request.FILES)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)
-            return redirect('index')
+            post=form.save(commit=False)
+            post.user=current_user
+            post.save()
+        return redirect("index")
     else:
-        form = SignupForm()
-    return render(request, 'registration/signup.html', {'form': form})
-
-
-@login_required(login_url='login')
-def profile(request, username):
-    return render(request, 'profile.html')
-
-
-def user_profile(request, username):
-    user_prof = get_object_or_404(User, username=username)
-    if request.user == user_prof:
-        return redirect('profile', username=request.user.username)
-    params = {
-        'user_prof': user_prof,
-    }
-    return render(request, 'userprofile.html', params)
-
-
-@login_required(login_url='login')
-def edit_profile(request, username):
-    user = User.objects.get(username=username)
-    if request.method == 'POST':
-        user_form = UpdateUserForm(request.POST, instance=request.user)
-        prof_form = UpdateUserProfileForm(request.POST, request.FILES, instance=request.user.profile)
-        if user_form.is_valid() and prof_form.is_valid():
-            user_form.save()
-            prof_form.save()
-            return redirect('profile', user.username)
-    else:
-        user_form = UpdateUserForm(instance=request.user)
-        prof_form = UpdateUserProfileForm(instance=request.user.profile)
-    params = {
-        'user_form': user_form,
-        'prof_form': prof_form
-    }
-    return render(request, 'edit.html', params)
-
-
-@login_required(login_url='login')
-def project(request, post):
-    post = Post.objects.get(title=post)
-    ratings = Rating.objects.filter(user=request.user, post=post).first()
-    rating_status = None
-    if ratings is None:
-        rating_status = False
-    else:
-        rating_status = True
-    if request.method == 'POST':
-        form = RatingsForm(request.POST)
+        form=PostForm()
+    return render(request,'post.html',{'form':form})
+@login_required(login_url='/accounts/login/')
+def profile(request):
+    current_user=request.user
+    try:
+        profis=Profile.objects.filter(user=current_user)[0:1]
+        user_projects=Projects.objects.filter(user=current_user)
+    except Exception as e:
+        raise  Http404()
+    if request.method=='POST':
+        form=UpdateForm(request.POST,request.FILES)
         if form.is_valid():
-            rate = form.save(commit=False)
-            rate.user = request.user
-            rate.post = post
-            rate.save()
-            post_ratings = Rating.objects.filter(post=post)
-
-            design_ratings = [d.design for d in post_ratings]
-            design_average = sum(design_ratings) / len(design_ratings)
-
-            usability_ratings = [us.usability for us in post_ratings]
-            usability_average = sum(usability_ratings) / len(usability_ratings)
-
-            content_ratings = [content.content for content in post_ratings]
-            content_average = sum(content_ratings) / len(content_ratings)
-
-            score = (design_average + usability_average + content_average) / 3
-            print(score)
-            rate.design_average = round(design_average, 2)
-            rate.usability_average = round(usability_average, 2)
-            rate.content_average = round(content_average, 2)
-            rate.score = round(score, 2)
-            rate.save()
-            return HttpResponseRedirect(request.path_info)
+            profile=form.save(commit=False)
+            profile.user=request.user
+            profile.save()
+        return redirect('profile')
     else:
-        form = RatingsForm()
-    params = {
-        'post': post,
-        'rating_form': form,
-        'rating_status': rating_status
+        form=UpdateForm()
+    return render(request,'profile.html', {'form':form,'profile':profis,'projects':user_projects})
 
-    }
-    return render(request, 'project.html', params)
+def project_detail(request,project_id):
+    try:
+        projects=Projects.objects.filter(id=project_id)
+        all=Rates.objects.filter(project=project_id)
+    except Exception as e:
+        raise Http404()
+    #user single
+    count=0
+    for i in all:
+        count+=i.usability
+        count+=i.design
+        count+=i.content
 
-
-def search_project(request):
-    if request.method == 'GET':
-        title = request.GET.get("title")
-        results = Post.objects.filter(title__icontains=title).all()
-        print(results)
-        message = f'name'
-        params = {
-            'results': results,
-            'message': message
-        }
-        return render(request, 'results.html', params)
+    if count>0:
+        ave=round(count/3,1)
     else:
-        message = "You haven't searched for any image category"
-    return render(request, 'results.html', {'message': message})
+        ave=0
+
+
+    if request.method=='POST':
+        form=RateForm(request.POST)
+        if form.is_valid():
+            rate=form.save(commit=False)
+            rate.user=request.user
+            rate.project=project_id
+            #review
+            rate.save()
+            return redirect('details',project_id)
+    else:
+        form=RateForm()
+
+    #logic
+
+    votes=Rates.objects.filter(project=project_id)
+    usability=[]
+    design=[]
+    content=[]
+
+    for i in votes:
+        usability.append(i.usability)
+        design.append(i.design)
+        content.append(i.content)
+    if len(usability) > 0 or len(design)> 0 or len(content) >0:
+
+        average_usa=round(sum(usability)/len(usability),1)
+        average_des=round(sum(design)/len(design),1)
+        average_con=round(sum(content)/len(content),1)
+
+        averageRating=round((average_con+average_des+average_usa)/3,1)
+    else:
+        average_usa=0.0
+        average_des=0.0
+        average_con=0.0
+        averageRating=0.0
+    '''
+    Restricting user to rate only once
+    '''
+    arr1=[]
+    for use in votes:
+        arr1.append(use.user_id)
+
+    auth=arr1
+
+
+    if request.method=='POST':
+        review=ReviewForm(request.POST)
+        if review.is_valid():
+            comment=review.save(commit=False)
+            comment.user=request.user
+            comment.pro_id=project_id
+            comment.save()
+            return redirect('details',project_id)
+    else:
+        review=ReviewForm()
+
+    try:
+        user_comment=Comments.objects.filter(pro_id=project_id)
+    except Exception as e:
+        raise Http404()
+    return render(request,'details.html',{'projects':projects,'form':form,'usability':average_usa,'design':average_des,'content':average_con,'average':averageRating,'auth':auth,'all':all,'ave':ave,'review':review,'comments':user_comment})
+
+# def ajaxRequest(request,project_id):
+#     if request.method=='POST':
+#         form=RateForm(request.POST)
+#         if form.is_valid():
+#             rate=form.save(commit=False)
+#             rate.user=request.user
+#             rate.project=project_id
+#             rate.save()
+#             data={'success':'Your ratings have been recorded successfully '}
+#             return JsonResponse(data)
+
+def search(request):
+
+    if 'name' in request.GET and   request.GET['name']:
+        term=request.GET.get('name')
+        results=Projects.search_project(term)
+
+        return render(request,'search.html',{'projects':results})
+    else:
+        message="You havent searched any project"
+        return render(request,'search.html',{'message':message})
+
+'''
+API View
+'''
+class ProjectList(APIView):
+    def get(self,request,format=None):
+        all_projects=Projects.objects.all()
+        serializers=ProjectSerializer(all_projects,many=True)
+        return Response(serializers.data)
+
+
+class ProfileList(APIView):
+    def get(self,request,format=None):
+        all_profiles=Profile.objects.all()
+        serializers=ProfileSerializer(all_profiles,many=True)
+        return Response(serializers.data)
+@login_required(login_url='/accounts/login/')
+def apiView(request):
+    current_user=request.user
+    title="Api"
+    profis=Profile.objects.filter(user=current_user)[0:1]
+    return render(request,'api.html',{"title":title,'profile':profis})

@@ -1,68 +1,54 @@
 from django.test import TestCase
-from .models import *
-
+from .models import Projects,Profile,Rates,Comments
 # Create your tests here.
+
+class TestProjects(TestCase):
+    def setUp(self):
+
+        self.new_project=Projects(name='The Law',image='kenya.jpg',description='lit',link='https:kenya',screen1='s',screen2='njcnjd')
+
+    def test_instace(self):
+        self.assertTrue(isinstance(self.new_project,Projects))
+
+    def test_initialization(self):
+        self.assertEqual(self.new_project.name,"The Law")
+        self.assertEqual(self.new_project.image,"kenya.jpg")
+        self.assertEqual(self.new_project.description,"lit")
+        self.assertEqual(self.new_project.link,"https:kenya")
+        self.assertEqual(self.new_project.screen1,"s")
+        self.assertEqual(self.new_project.screen2,"njcnjd")
+
 class TestProfile(TestCase):
     def setUp(self):
-        self.user = User(id=1, username='victor', password='moringa')
-        self.user.save()
+        self.new_profile=Profile(profile='victor',bio='the jig is up',phone="0719890523")
 
     def test_instance(self):
-        self.assertTrue(isinstance(self.user, User))
+        self.assertTrue(isinstance(self.new_profile,Profile))
 
-    def test_save_user(self):
-        self.user.save()
+    def test_initialization(self):
+        self.assertEqual(self.new_profile.profile,'victor')
+        self.assertEqual(self.new_profile.bio,'the jig is up')
+        self.assertEqual(self.new_profile.phone,"0719890523")
 
-    def test_delete_user(self):
-        self.user.delete()
 
-
-class PostTest(TestCase):
+class TestRating(TestCase):
     def setUp(self):
-        self.user = User.objects.create(id=1, username='victor')
-        self.post = Post.objects.create(id=1, title='test post', photo='https://ucarecdn.com/0ccf61ff-508e-46c6-b713-db51daa6626e', description='desc',
-                                        user=self.user, url='http://ur.coml')
+        self.new_rating=Rates(design=0,usability=0,content=0)
 
     def test_instance(self):
-        self.assertTrue(isinstance(self.post, Post))
+        self.assertTrue(isinstance(self.new_rating,Rates))
 
-    def test_save_post(self):
-        self.post.save_post()
-        post = Post.objects.all()
-        self.assertTrue(len(post) > 0)
-
-    def test_get_posts(self):
-        self.post.save()
-        posts = Post.all_posts()
-        self.assertTrue(len(posts) > 0)
-
-    def test_search_post(self):
-        self.post.save()
-        post = Post.search_project('test')
-        self.assertTrue(len(post) > 0)
-
-    def test_delete_post(self):
-        self.post.delete_post()
-        post = Post.search_project('test')
-        self.assertTrue(len(post) < 1)
-
-
-class RatingTest(TestCase):
+    def test_initialization(self):
+        self.assertEqual(self.new_rating.design,0)
+        self.assertEqual(self.new_rating.usability,0)
+        self.assertEqual(self.new_rating.content,0)
+class TestComments(TestCase):
     def setUp(self):
-        self.user = User.objects.create(id=1, username='victor')
-        self.post = Post.objects.create(id=1, title='test post', photo='https://ucarecdn.com/0ccf61ff-508e-46c6-b713-db51daa6626e', description='desc',
-                                        user=self.user, url='http://ur.coml')
-        self.rating = Rating.objects.create(id=1, design=6, usability=7, content=9, user=self.user, post=self.post)
+        self.new_comment=Comments(comment="Kenya",pro_id=0)
 
     def test_instance(self):
-        self.assertTrue(isinstance(self.rating, Rating))
+        self.assertTrue(isinstance(self.new_comment,Comments))
 
-    def test_save_rating(self):
-        self.rating.save_rating()
-        rating = Rating.objects.all()
-        self.assertTrue(len(rating) > 0)
-
-    def test_get_post_rating(self, id):
-        self.rating.save()
-        rating = Rating.get_ratings(post_id=id)
-        self.assertTrue(len(rating) == 1)
+    def test_initialization(self):
+        self.assertEqual(self.new_comment.comment,"Kenya")
+        self.assertEqual(self.new_comment.pro_id,0)

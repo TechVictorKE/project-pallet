@@ -13,11 +13,13 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 import django_on_heroku
 import dj_database_url
-from pathlib import Path
-from decouple import config, Csv
+from decouple import config,Csv
+MODE=config('MODE',default='dev')
+SECRET_KEY=config("SECRET_KEY")
+DEBUG=config("DEBUG",default=False,cast=bool)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,36 +29,41 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-)s!-#5rrx(#lv0ak1=p63lq7gsgyb9skkyrxz+asw#5#s9oik@'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+#DEBUG = True
 
-ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = []
+
+LOGIN_REDIRECT_URL='/'
+REGISTRATION_OPEN=True
+
+
+#rest settings
+
+REST_FRAMEWORK={
+    'DEFAULT_AUTHENTICATION_CLASSES':(
+        'rest_framework.authentication.TokenAuthentication',
+    )
+}
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'projectpallet',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'bootstrap4',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'projectpallet',
-    'crispy_forms',
-    'rest_framework',
-    'pyuploadcare.dj',
 ]
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
-
-UPLOADCARE = {
-    'pub_key': 'fe025c6ea668c27a4b27',
-    'secret': '027058adb2b25f18f477',
-}
-
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -92,12 +99,11 @@ WSGI_APPLICATION = 'mypallet.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pallet',
+        'NAME': 'projectpallet',
         'USER': 'moringa',
     'PASSWORD':'moringa',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -135,24 +141,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [ os.path.join(BASE_DIR, "static"), ] 
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles") 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-LOGIN_REDIRECT_URL = 'index'
 
-LOGOUT_REDIRECT_URL = 'index'
+STATIC_URL = '/static/'
+STATICFILES_DIR=[
+    os.path.join(BASE_DIR,'static')
+]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
-    ],
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
-}
+
+MEDIA_URL='/media/'
+MEDIA_ROOT=os.path.join(BASE_DIR,'media')
 
 # Configure Django App for Heroku.
 django_on_heroku.settings(locals())
