@@ -7,16 +7,16 @@ This application allows a user to post a project he/she has created and get it r
 ## Screenshot
 
 Home:
-<img src="">
+<img src="https://github.com/TechVictorKE/project-pallet/blob/master/projectpallet/static/img/pallet-home1.png">
+
+Home:
+<img src="https://github.com/TechVictorKE/project-pallet/blob/master/projectpallet/static/img/pallet-home2.png">
 
 Profile:
-<img src="">
+<img src="https://github.com/TechVictorKE/project-pallet/blob/master/projectpallet/static/img/sample-profile.png">
 
-Update profile:
-<img src="">
-
-Create post:
-<img src="">
+Single post:
+<img src="https://github.com/TechVictorKE/project-pallet/blob/master/projectpallet/static/img/singleproject-post.png">
 
 
 ## User Stories
@@ -33,7 +33,7 @@ Create post:
 | :---------------- | :---------------: | ------------------: |
 | Load website | **Website url** | Sign up/Log in|
 | Show posts | **Click on post** | See the post close up|
-| Search user | **Username** | Profile picture with username that leads to user's profile|
+| Search project | **Project name** | Project with username that leads to user's profile|
 
 
 
