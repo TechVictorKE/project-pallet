@@ -179,7 +179,7 @@ body{
   border-bottom: 1px solid rgba(0,0,0,0.1);
 }
 #title{
-  margin-right: 350px;
+  text-align: center;
   font-weight: 500;
 
 }
@@ -195,7 +195,7 @@ body{
 
 .home{
   background-image: url(../img/download.jpg);
-  height: 100vh;
+  height: 92vh;
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -270,7 +270,7 @@ body{
   width: 80%;
 }
 #logg{
-  background-image: url(../img/bg.jpeg);
+  background-image: url(../img/bg.jpg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
@@ -288,7 +288,7 @@ body{
   box-shadow: 1px 1px 5px black;
 }
 .improfile{
-  background-image: url(../img/bg.jpeg);
+  background-image: url(../img/bg.jpg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
