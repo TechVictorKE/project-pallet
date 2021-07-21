@@ -215,6 +215,8 @@ body{
   text-align: center;
   color: white;
   font-weight: 500;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
 .overly button:hover{
