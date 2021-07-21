@@ -7,19 +7,17 @@ This application allows a user to post a project he/she has created and get it r
 ## Screenshot
 
 Home:
-<img src="https://github.com/TechVictorKE/insta-clone/blob/master/static/images/home1.png">
+<img src="">
 
 Profile:
-<img src="https://github.com/TechVictorKE/insta-clone/blob/master/static/images/profile1.png">
+<img src="">
 
 Update profile:
-<img src="https://github.com/TechVictorKE/insta-clone/blob/master/static/images/update-profile1.png">
+<img src="">
 
 Create post:
-<img src="https://github.com/TechVictorKE/insta-clone/blob/master/static/images/create-post1.png">
+<img src="">
 
-Single post:
-<img src="https://github.com/TechVictorKE/insta-clone/blob/master/static/images/single-post1.png">
 
 ## User Stories
 
