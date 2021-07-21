@@ -245,6 +245,7 @@ body{
   padding: 10px;
 }
 .loggin{
+  background-color: rgba(0,0,0,0.5);
   width: 70%;
   text-align: center;
   margin: auto;
